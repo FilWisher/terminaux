@@ -1,0 +1,27 @@
+{
+  "name": "terminaux",
+  "version": "1.0.0",
+  "description": "faux terminal",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FilWisher/terminaux.git"
+  },
+  "author": "William Fisher",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FilWisher/terminaux/issues"
+  },
+  "homepage": "https://github.com/FilWisher/terminaux",
+  "devDependencies": {
+    "watchify": "^3.2.1"
+  },
+  "dependencies": {
+    "observ": "^0.2.0",
+    "observ-struct": "^6.0.0",
+    "virtual-dom": "^2.0.1"
+  }
+}
