@@ -10,21 +10,54 @@ var observStruct = require("observ-struct");
 var commands = {
 
     ls: function (args, state) {
-        var current = state.current();
-        var response = Object.keys(state.fs()[current]).join("\n");
+        var currentPosition = state.current();
+        var fs = state.fs();
+        var currentDirectory = currentPosition.reduce(function (a, b) {
+            
+           if (typeof a === "object" && a.hasOwnProperty(b)) {
+                return a[b]; 
+           } else {
+                return a;
+           }
+        }, state.fs()); 
+        var response = Object.keys(currentDirectory).join("\n");
         var history = state.history();
         history.push(response);
         state.history.set(history);
     },
     cd: function (args, state) {
         var target = args[1]; 
+        target += (target !== ".." && target[target.length-1] !== "/") ? "/" : "";
         var fs = state.fs();
-        console.log(args);
-        console.log(typeof fs[target])
+        var currentPosition = state.current(); 
         if (typeof fs["/"][target] === "object") {
-            state.current.set(target); 
-            console.log(state.current());
+            currentPosition.push(target); 
+            state.current.set(currentPosition); 
+        } else if (target === "..") {
+            currentPosition.pop();
+            state.current.set(currentPosition);
         }
+    },
+    clear: function (args, state) {
+        state.history.set([]);
+    },
+    mkdir: function (args, state) {
+    
+        var dirName = args[1];
+        //append forward slash for directories
+        dirName += (dirName[dirName.length-1] !== "/") ? "/" : "";
+        
+        var currentPosition = state.current();
+        var directory = state.fs();
+        var newDirectory = directory;
+        // access current folder
+        currentPosition.forEach(function (a) {
+        
+            newDirectory = newDirectory[a];
+        }, state.fs());
+        // create new
+        newDirectory[dirName] = {};
+        state.fs.set(directory);
     }
 };
 
@@ -36,20 +69,20 @@ function main () {
   
     var state = observStruct({
         history: observ([]),
-        current: observ("/"),
+        current: observ(["/"]),
         fs: observStruct({
             "/": {
                 "documents/": {
-                    "cool": 1,
-                    "yes": 2,
-                    "whynot": 3
+                    ".vimrc": 1,
+                    "server.js": 2,
+                    "package.json": 3
                 },
-                "music/": {},
-                "downloads/": {}
+                "projects/": {},
+                "contact/": {}
             } 
         })
     });
-   
+  
     var vtree, ntree, initial = true;
     state(function () {
         render();   
@@ -72,7 +105,6 @@ function main () {
     }
 
     try {
-    
         document.querySelector(".terminal-container").appendChild(render());
     } catch (e) {
         console.log(e); 
