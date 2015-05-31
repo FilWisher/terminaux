@@ -6,13 +6,15 @@ html, body, input {
 }
 
 .terminal {
-  margin: auto;
-  padding: 1em;
   background-color: #111;
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 30em;
-  width: 30em;
+  width: 50%;
   border: 1px solid #ddd;
   overflow-y: hidden;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.25);
 }
 
 .flashin {
@@ -33,6 +35,45 @@ input {
   outline: 0;
   margin: 0;
   overflow-x: visible;
+}
+
+div.instructions {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 50%;
+  height: 30em;
+  color: black;
+  background-color: #eee;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.25);
+}
+
+div.instructions div.header {
+
+  height: 1em;
+  line-height: 1em;
+  width: 10em;
+  margin: 0em auto 4em;
+}
+
+div.instructions div.header p {
+  margin-top: 0.2em;
+}
+
+div.instructions div.command {
+  margin-left: 4em;
+  overflow: auto;
+}
+
+div.instructions div.command p:nth-child(1) {
+  font-weight: bold;
+  float: left;
+}
+
+div.instructions div.command p:nth-child(2) {
+  float: right;
+  font-weight: normal;
+  margin-right: 4em;
 }
 
 p#cool {
