@@ -1,181 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/home/william/projects/terminaux/index.js":[function(require,module,exports){
-"use strict";
-
-
-var h = require("virtual-dom/h");
-var diff = require("virtual-dom/diff");
-var patch = require("virtual-dom/patch");
-var createElement = require("virtual-dom/create-element");
-var observ = require("observ");
-var observStruct = require("observ-struct");
-var commands = {
-
-    ls: function (args, state) {
-        var current = state.current();
-        var response = Object.keys(state.fs()[current]).join("\n");
-        var history = state.history();
-        history.push(response);
-        state.history.set(history);
-    },
-    cd: function (args, state) {
-        var target = args[1]; 
-        var fs = state.fs();
-        console.log(args);
-        console.log(typeof fs[target])
-        if (typeof fs["/"][target] === "object") {
-            state.current.set(target); 
-            console.log(state.current());
-        }
-    }
-};
-
-function main () {
-    
-    function user () {
-        return "filwisher:~$ ";
-    }
-  
-    var state = observStruct({
-        history: observ([]),
-        current: observ("/"),
-        fs: observStruct({
-            "/": {
-                "documents/": {
-                    "cool": 1,
-                    "yes": 2,
-                    "whynot": 3
-                },
-                "music/": {},
-                "downloads/": {}
-            } 
-        })
-    });
-   
-    var vtree, ntree, initial = true;
-    state(function () {
-        render();   
-    });
-
-    function render () {
-         if (initial) {
-            vtree = view(state); 
-            ntree = createElement(vtree);
-            initial = false;
-            console.log(ntree);
-            return ntree;
-         } else {
-            var newvtree = view(state); 
-            var patches = diff(vtree, newvtree);
-            ntree = patch(ntree, patches);
-            vtree = ntree;
-            document.querySelector("input.cursor").focus()
-         }
-    }
-
-    try {
-    
-        document.querySelector(".terminal-container").appendChild(render());
-    } catch (e) {
-        console.log(e); 
-    }
-
-    function evaluate () {
-        var history = state.history();
-        var input = document.querySelector(".cursor").value;
-        history.push(user() + input);
-        state.history.set(history);
-       
-        var args = input.split(" "); 
-        if (commands.hasOwnProperty(args[0])) {
-        
-            commands[args[0]](args, state);
-        }
-    }
-
-    function view () {
-   
-       return h("div.terminal", [
-     
-            
-            state.history().map(function (command) {
-                return h("div.line", [
-              
-                    h("span", command)
-                ]);
-            }),
-            h("div.line", [
-                h("span", user()),
-                h("input.cursor", {
-                    autofocus: true,
-                    type: "text",
-                    placeholder: "_",
-                    onkeypress: function (ev) {
-                        if (ev.keyCode === 13) {
-                            evaluate();   
-                        } 
-                    }
-                })
-            ])
-       ]); 
-    }
-}
-
-
-main();
-
-
-
-
-
-
-
-
-
-
-
-
-/* 
-
-var input = document.querySelector("input");
-
-var args;
-var argv;
-
-input.addEventListener("keypress", function (v) {
-  
- if  (v.which === 13) {
-  
-  args = input.value;
-  argv = args.split(" ");
-  input.value = "";
-  if (methods.hasOwnProperty(argv[0])) {
-    methods[argv[0]]();
-  }
- document.querySelector("#cool").textContent = args;
-   
- }
-
-});
-
-
-var terminal = document.querySelector(".terminal");
-terminal.scrollTop = terminal.scrollHeight;
-
-var methods = {
-  
- ls: function (argv) {
-   alert("LSED");
- },
-  cd: function (argv) {
-    alert("argv[1]");
-  },
-  pwd: function (argv) {
-    alert("PWD");
-  }
-};
-*/
-
-},{"observ":"/home/william/projects/terminaux/node_modules/observ/index.js","observ-struct":"/home/william/projects/terminaux/node_modules/observ-struct/index.js","virtual-dom/create-element":"/home/william/projects/terminaux/node_modules/virtual-dom/create-element.js","virtual-dom/diff":"/home/william/projects/terminaux/node_modules/virtual-dom/diff.js","virtual-dom/h":"/home/william/projects/terminaux/node_modules/virtual-dom/h.js","virtual-dom/patch":"/home/william/projects/terminaux/node_modules/virtual-dom/patch.js"}],"/home/william/projects/terminaux/node_modules/observ-struct/index.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var Observ = require("observ")
 var extend = require("xtend")
 
@@ -285,7 +108,7 @@ function ObservStruct(struct) {
     return obs
 }
 
-},{"observ":"/home/william/projects/terminaux/node_modules/observ/index.js","xtend":"/home/william/projects/terminaux/node_modules/observ-struct/node_modules/xtend/index.js"}],"/home/william/projects/terminaux/node_modules/observ-struct/node_modules/xtend/index.js":[function(require,module,exports){
+},{"observ":3,"xtend":2}],2:[function(require,module,exports){
 module.exports = extend
 
 function extend() {
@@ -304,7 +127,7 @@ function extend() {
     return target
 }
 
-},{}],"/home/william/projects/terminaux/node_modules/observ/index.js":[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 module.exports = Observable
 
 function Observable(value) {
@@ -333,22 +156,22 @@ function Observable(value) {
     }
 }
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/create-element.js":[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 var createElement = require("./vdom/create-element.js")
 
 module.exports = createElement
 
-},{"./vdom/create-element.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/create-element.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/diff.js":[function(require,module,exports){
+},{"./vdom/create-element.js":16}],5:[function(require,module,exports){
 var diff = require("./vtree/diff.js")
 
 module.exports = diff
 
-},{"./vtree/diff.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vtree/diff.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/h.js":[function(require,module,exports){
+},{"./vtree/diff.js":36}],6:[function(require,module,exports){
 var h = require("./virtual-hyperscript/index.js")
 
 module.exports = h
 
-},{"./virtual-hyperscript/index.js":"/home/william/projects/terminaux/node_modules/virtual-dom/virtual-hyperscript/index.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/browser-split/index.js":[function(require,module,exports){
+},{"./virtual-hyperscript/index.js":23}],7:[function(require,module,exports){
 /*!
  * Cross-Browser Split 1.1.1
  * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
@@ -456,7 +279,7 @@ module.exports = (function split(undef) {
   return self;
 })();
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/ev-store/index.js":[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 'use strict';
 
 var OneVersionConstraint = require('individual/one-version');
@@ -478,7 +301,7 @@ function EvStore(elem) {
     return hash;
 }
 
-},{"individual/one-version":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/ev-store/node_modules/individual/one-version.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/ev-store/node_modules/individual/index.js":[function(require,module,exports){
+},{"individual/one-version":10}],9:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -501,7 +324,7 @@ function Individual(key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/ev-store/node_modules/individual/one-version.js":[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 var Individual = require('./index.js');
@@ -525,7 +348,7 @@ function OneVersion(moduleName, version, defaultValue) {
     return Individual(key, defaultValue);
 }
 
-},{"./index.js":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/ev-store/node_modules/individual/index.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/global/document.js":[function(require,module,exports){
+},{"./index.js":9}],11:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -544,14 +367,14 @@ if (typeof document !== 'undefined') {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/browser-resolve/empty.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/is-object/index.js":[function(require,module,exports){
+},{"min-document":37}],12:[function(require,module,exports){
 "use strict";
 
 module.exports = function isObject(x) {
 	return typeof x === "object" && x !== null;
 };
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/x-is-array/index.js":[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -561,12 +384,12 @@ function isArray(obj) {
     return toString.call(obj) === "[object Array]"
 }
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/patch.js":[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var patch = require("./vdom/patch.js")
 
 module.exports = patch
 
-},{"./vdom/patch.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/patch.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/apply-properties.js":[function(require,module,exports){
+},{"./vdom/patch.js":19}],15:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook.js")
 
@@ -665,7 +488,7 @@ function getPrototype(value) {
     }
 }
 
-},{"../vnode/is-vhook.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vhook.js","is-object":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/is-object/index.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/create-element.js":[function(require,module,exports){
+},{"../vnode/is-vhook.js":27,"is-object":12}],16:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -713,7 +536,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"../vnode/handle-thunk.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/handle-thunk.js","../vnode/is-vnode.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vnode.js","../vnode/is-vtext.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vtext.js","../vnode/is-widget.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-widget.js","./apply-properties":"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/apply-properties.js","global/document":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/global/document.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/dom-index.js":[function(require,module,exports){
+},{"../vnode/handle-thunk.js":25,"../vnode/is-vnode.js":28,"../vnode/is-vtext.js":29,"../vnode/is-widget.js":30,"./apply-properties":15,"global/document":11}],17:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -800,7 +623,7 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/patch-op.js":[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("../vnode/is-widget.js")
@@ -954,7 +777,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"../vnode/is-widget.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-widget.js","../vnode/vpatch.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/vpatch.js","./apply-properties":"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/apply-properties.js","./create-element":"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/create-element.js","./update-widget":"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/update-widget.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/patch.js":[function(require,module,exports){
+},{"../vnode/is-widget.js":30,"../vnode/vpatch.js":33,"./apply-properties":15,"./create-element":16,"./update-widget":20}],19:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -1032,7 +855,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/dom-index.js","./patch-op":"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/patch-op.js","global/document":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/global/document.js","x-is-array":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/x-is-array/index.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vdom/update-widget.js":[function(require,module,exports){
+},{"./dom-index":17,"./patch-op":18,"global/document":11,"x-is-array":13}],20:[function(require,module,exports){
 var isWidget = require("../vnode/is-widget.js")
 
 module.exports = updateWidget
@@ -1049,7 +872,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"../vnode/is-widget.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-widget.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/virtual-hyperscript/hooks/ev-hook.js":[function(require,module,exports){
+},{"../vnode/is-widget.js":30}],21:[function(require,module,exports){
 'use strict';
 
 var EvStore = require('ev-store');
@@ -1078,7 +901,7 @@ EvHook.prototype.unhook = function(node, propertyName) {
     es[propName] = undefined;
 };
 
-},{"ev-store":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/ev-store/index.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/virtual-hyperscript/hooks/soft-set-hook.js":[function(require,module,exports){
+},{"ev-store":8}],22:[function(require,module,exports){
 'use strict';
 
 module.exports = SoftSetHook;
@@ -1097,7 +920,7 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
     }
 };
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/virtual-hyperscript/index.js":[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 var isArray = require('x-is-array');
@@ -1234,7 +1057,7 @@ function errorString(obj) {
     }
 }
 
-},{"../vnode/is-thunk":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-thunk.js","../vnode/is-vhook":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vhook.js","../vnode/is-vnode":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vnode.js","../vnode/is-vtext":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vtext.js","../vnode/is-widget":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-widget.js","../vnode/vnode.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/vnode.js","../vnode/vtext.js":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/vtext.js","./hooks/ev-hook.js":"/home/william/projects/terminaux/node_modules/virtual-dom/virtual-hyperscript/hooks/ev-hook.js","./hooks/soft-set-hook.js":"/home/william/projects/terminaux/node_modules/virtual-dom/virtual-hyperscript/hooks/soft-set-hook.js","./parse-tag.js":"/home/william/projects/terminaux/node_modules/virtual-dom/virtual-hyperscript/parse-tag.js","x-is-array":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/x-is-array/index.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/virtual-hyperscript/parse-tag.js":[function(require,module,exports){
+},{"../vnode/is-thunk":26,"../vnode/is-vhook":27,"../vnode/is-vnode":28,"../vnode/is-vtext":29,"../vnode/is-widget":30,"../vnode/vnode.js":32,"../vnode/vtext.js":34,"./hooks/ev-hook.js":21,"./hooks/soft-set-hook.js":22,"./parse-tag.js":24,"x-is-array":13}],24:[function(require,module,exports){
 'use strict';
 
 var split = require('browser-split');
@@ -1290,7 +1113,7 @@ function parseTag(tag, props) {
     return props.namespace ? tagName : tagName.toUpperCase();
 }
 
-},{"browser-split":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/browser-split/index.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/handle-thunk.js":[function(require,module,exports){
+},{"browser-split":7}],25:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -1332,14 +1155,14 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-thunk.js","./is-vnode":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vnode.js","./is-vtext":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vtext.js","./is-widget":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-widget.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-thunk.js":[function(require,module,exports){
+},{"./is-thunk":26,"./is-vnode":28,"./is-vtext":29,"./is-widget":30}],26:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vhook.js":[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -1348,7 +1171,7 @@ function isHook(hook) {
        typeof hook.unhook === "function" && !hook.hasOwnProperty("unhook"))
 }
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vnode.js":[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -1357,7 +1180,7 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/version.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vtext.js":[function(require,module,exports){
+},{"./version":31}],29:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -1366,17 +1189,17 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/version.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-widget.js":[function(require,module,exports){
+},{"./version":31}],30:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/version.js":[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 module.exports = "2"
 
-},{}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/vnode.js":[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -1450,7 +1273,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-thunk":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-thunk.js","./is-vhook":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vhook.js","./is-vnode":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vnode.js","./is-widget":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-widget.js","./version":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/version.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/vpatch.js":[function(require,module,exports){
+},{"./is-thunk":26,"./is-vhook":27,"./is-vnode":28,"./is-widget":30,"./version":31}],33:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -1474,7 +1297,7 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/version.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/vtext.js":[function(require,module,exports){
+},{"./version":31}],34:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -1486,7 +1309,7 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/version.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vtree/diff-props.js":[function(require,module,exports){
+},{"./version":31}],35:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook")
 
@@ -1546,7 +1369,7 @@ function getPrototype(value) {
   }
 }
 
-},{"../vnode/is-vhook":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vhook.js","is-object":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/is-object/index.js"}],"/home/william/projects/terminaux/node_modules/virtual-dom/vtree/diff.js":[function(require,module,exports){
+},{"../vnode/is-vhook":27,"is-object":12}],36:[function(require,module,exports){
 var isArray = require("x-is-array")
 
 var VPatch = require("../vnode/vpatch")
@@ -1975,6 +1798,215 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"../vnode/handle-thunk":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/handle-thunk.js","../vnode/is-thunk":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-thunk.js","../vnode/is-vnode":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vnode.js","../vnode/is-vtext":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-vtext.js","../vnode/is-widget":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/is-widget.js","../vnode/vpatch":"/home/william/projects/terminaux/node_modules/virtual-dom/vnode/vpatch.js","./diff-props":"/home/william/projects/terminaux/node_modules/virtual-dom/vtree/diff-props.js","x-is-array":"/home/william/projects/terminaux/node_modules/virtual-dom/node_modules/x-is-array/index.js"}],"/usr/lib/node_modules/watchify/node_modules/browserify/node_modules/browser-resolve/empty.js":[function(require,module,exports){
+},{"../vnode/handle-thunk":25,"../vnode/is-thunk":26,"../vnode/is-vnode":28,"../vnode/is-vtext":29,"../vnode/is-widget":30,"../vnode/vpatch":33,"./diff-props":35,"x-is-array":13}],37:[function(require,module,exports){
 
-},{}]},{},["/home/william/projects/terminaux/index.js"]);
+},{}],38:[function(require,module,exports){
+"use strict";
+
+
+var h = require("virtual-dom/h");
+var diff = require("virtual-dom/diff");
+var patch = require("virtual-dom/patch");
+var createElement = require("virtual-dom/create-element");
+var observ = require("observ");
+var observStruct = require("observ-struct");
+var commands = {
+
+    ls: function (args, state) {
+        var currentPosition = state.current();
+        var fs = state.fs();
+        var currentDirectory = currentPosition.reduce(function (a, b) {
+            
+           if (typeof a === "object" && a.hasOwnProperty(b)) {
+                return a[b]; 
+           } else {
+                return a;
+           }
+        }, state.fs()); 
+        var response = Object.keys(currentDirectory).join("\n");
+        var history = state.history();
+        history.push(response);
+        state.history.set(history);
+    },
+    cd: function (args, state) {
+        var target = args[1]; 
+        target += (target !== ".." && target[target.length-1] !== "/") ? "/" : "";
+        var fs = state.fs();
+        var currentPosition = state.current(); 
+        if (typeof fs["/"][target] === "object") {
+            currentPosition.push(target); 
+            state.current.set(currentPosition); 
+        } else if (target === "..") {
+            currentPosition.pop();
+            state.current.set(currentPosition);
+        }
+    },
+    clear: function (args, state) {
+        state.history.set([]);
+    },
+    mkdir: function (args, state) {
+    
+        var dirName = args[1];
+        //append forward slash for directories
+        dirName += (dirName[dirName.length-1] !== "/") ? "/" : "";
+        
+        var currentPosition = state.current();
+        var directory = state.fs();
+        var newDirectory = directory;
+        // access current folder
+        currentPosition.forEach(function (a) {
+        
+            newDirectory = newDirectory[a];
+        }, state.fs());
+        // create new
+        newDirectory[dirName] = {};
+        state.fs.set(directory);
+    }
+};
+
+function main () {
+    
+    function user () {
+        return "filwisher:~$ ";
+    }
+  
+    var state = observStruct({
+        history: observ([]),
+        current: observ(["/"]),
+        fs: observStruct({
+            "/": {
+                "documents/": {
+                    ".vimrc": 1,
+                    "server.js": 2,
+                    "package.json": 3
+                },
+                "projects/": {},
+                "contact/": {}
+            } 
+        })
+    });
+  
+    var vtree, ntree, initial = true;
+    state(function () {
+        render();   
+    });
+
+    function render () {
+         if (initial) {
+            vtree = view(state); 
+            ntree = createElement(vtree);
+            initial = false;
+            console.log(ntree);
+            return ntree;
+         } else {
+            var newvtree = view(state); 
+            var patches = diff(vtree, newvtree);
+            ntree = patch(ntree, patches);
+            vtree = ntree;
+            document.querySelector("input.cursor").focus()
+         }
+    }
+
+    try {
+        document.querySelector(".terminal-container").appendChild(render());
+    } catch (e) {
+        console.log(e); 
+    }
+
+    function evaluate () {
+        var history = state.history();
+        var input = document.querySelector(".cursor").value;
+        history.push(user() + input);
+        state.history.set(history);
+       
+        var args = input.split(" "); 
+        if (commands.hasOwnProperty(args[0])) {
+        
+            commands[args[0]](args, state);
+        }
+    }
+
+    function view () {
+   
+       return h("div.terminal", [
+     
+            
+            state.history().map(function (command) {
+                return h("div.line", [
+              
+                    h("span", command)
+                ]);
+            }),
+            h("div.line", [
+                h("span", user()),
+                h("input.cursor", {
+                    autofocus: true,
+                    type: "text",
+                    placeholder: "_",
+                    onkeypress: function (ev) {
+                        if (ev.keyCode === 13) {
+                            evaluate();   
+                        } 
+                    }
+                })
+            ])
+       ]); 
+    }
+}
+
+
+main();
+
+
+
+
+
+
+
+
+
+
+
+
+/* 
+
+var input = document.querySelector("input");
+
+var args;
+var argv;
+
+input.addEventListener("keypress", function (v) {
+  
+ if  (v.which === 13) {
+  
+  args = input.value;
+  argv = args.split(" ");
+  input.value = "";
+  if (methods.hasOwnProperty(argv[0])) {
+    methods[argv[0]]();
+  }
+ document.querySelector("#cool").textContent = args;
+   
+ }
+
+});
+
+
+var terminal = document.querySelector(".terminal");
+terminal.scrollTop = terminal.scrollHeight;
+
+var methods = {
+  
+ ls: function (argv) {
+   alert("LSED");
+ },
+  cd: function (argv) {
+    alert("argv[1]");
+  },
+  pwd: function (argv) {
+    alert("PWD");
+  }
+};
+*/
+
+},{"observ":3,"observ-struct":1,"virtual-dom/create-element":4,"virtual-dom/diff":5,"virtual-dom/h":6,"virtual-dom/patch":14}]},{},[38]);
