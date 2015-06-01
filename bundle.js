@@ -1,4 +1,129 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+"use strict";
+
+module.exports = {
+    ls: ls,
+    cd: cd,
+    mkdir: mkdir,
+    clear: clear,
+    help: help,
+    commands: commands,
+    pwd: pwd,
+    load: load
+};
+
+var commands = {
+    commands: "`commands` - displays a list of available commands",
+    help: "`help` - displays usage information for a command",
+    ls: "`ls` - list the contents of the current directory",
+    cd: "`cd <target>` - change to target directory. `cd ..` changes to parent dir",
+    mkdir: "`mkdir <target>` - creates new directory in the current location",
+    clear: "`clear` - clear the history of the current terminal",
+    pwd: "`pwd` - print current directory",
+    load: "`load <target>` - load the target .screen panel onto the screen"
+};
+
+function ls (args, state) {
+    var currentPosition = state.current();
+    var fs = state.fs();
+    var currentDirectory = currentPosition.reduce(function (a, b) {
+        
+       if (typeof a === "object" && a.hasOwnProperty(b)) {
+            return a[b]; 
+       } else {
+            return a;
+       }
+    }, state.fs()); 
+    var response = Object.keys(currentDirectory).join("\n");
+    var history = state.history();
+    history.push(response);
+    state.history.set(history);
+}
+
+function pwd (args, state) {
+    
+    var history = state.history();
+    var currentPosition = state.current().join("");
+    if (currentPosition.length > 1) {
+        currentPosition = currentPosition.substr(0, currentPosition.length - 1);
+    }
+    history.push(currentPosition);
+    state.history.set(history);
+}
+
+function cd (args, state) {
+    var target = args[1]; 
+    target += (target !== ".." && target[target.length-1] !== "/") ? "/" : "";
+    var fs = state.fs();
+    var currentPosition = state.current(); 
+    if (typeof fs["/"][target] === "object") {
+        currentPosition.push(target); 
+        state.current.set(currentPosition); 
+    } else if (target === "..") {
+        currentPosition.pop();
+        state.current.set(currentPosition);
+    }
+}
+
+function clear (args, state) {
+    state.history.set([]);
+}
+
+function mkdir (args, state) {
+
+    var dirName = args[1];
+    //append forward slash for directories
+    dirName += (dirName[dirName.length-1] !== "/") ? "/" : "";
+    
+    var currentPosition = state.current();
+    var directory = state.fs();
+    var newDirectory = directory;
+    // access current folder
+    currentPosition.forEach(function (a) {
+    
+        newDirectory = newDirectory[a];
+    }, state.fs());
+    // create new
+    newDirectory[dirName] = {};
+    state.fs.set(directory);
+}
+
+function help (args, state) {
+  
+    var history = state.history();
+    if (args.length === 1) {
+        history.push("Type `commands` to see list of commands");
+        history.push("Or you can type `help <command>` for help with usage.");
+    } else {
+        var hint = commands[args[1]];
+        if (hint) history.push(hint);
+        else history.push("That doesn't look familiar. Type commands to see what's available.");
+    }
+    state.history.set(history);
+}
+
+function commands (args, state) {
+    
+    var history = state.history();
+    Object.keys(commands).forEach(function (command) {
+        
+        var line = commands[command];
+        history.push(line);
+    });
+    state.history.set(history);
+}
+
+function load (args, state) {
+
+    var history = state.history();
+    var target = args[1];
+    target = target.replace(".screen", "");
+    history.push("Loading target screen");
+    state.screen.set(target);
+    state.history.set(history);
+}
+
+},{}],2:[function(require,module,exports){
 var Observ = require("observ")
 var extend = require("xtend")
 
@@ -108,7 +233,7 @@ function ObservStruct(struct) {
     return obs
 }
 
-},{"observ":3,"xtend":2}],2:[function(require,module,exports){
+},{"observ":4,"xtend":3}],3:[function(require,module,exports){
 module.exports = extend
 
 function extend() {
@@ -127,7 +252,7 @@ function extend() {
     return target
 }
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 module.exports = Observable
 
 function Observable(value) {
@@ -156,22 +281,22 @@ function Observable(value) {
     }
 }
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 var createElement = require("./vdom/create-element.js")
 
 module.exports = createElement
 
-},{"./vdom/create-element.js":16}],5:[function(require,module,exports){
+},{"./vdom/create-element.js":17}],6:[function(require,module,exports){
 var diff = require("./vtree/diff.js")
 
 module.exports = diff
 
-},{"./vtree/diff.js":36}],6:[function(require,module,exports){
+},{"./vtree/diff.js":37}],7:[function(require,module,exports){
 var h = require("./virtual-hyperscript/index.js")
 
 module.exports = h
 
-},{"./virtual-hyperscript/index.js":23}],7:[function(require,module,exports){
+},{"./virtual-hyperscript/index.js":24}],8:[function(require,module,exports){
 /*!
  * Cross-Browser Split 1.1.1
  * Copyright 2007-2012 Steven Levithan <stevenlevithan.com>
@@ -279,7 +404,7 @@ module.exports = (function split(undef) {
   return self;
 })();
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 var OneVersionConstraint = require('individual/one-version');
@@ -301,7 +426,7 @@ function EvStore(elem) {
     return hash;
 }
 
-},{"individual/one-version":10}],9:[function(require,module,exports){
+},{"individual/one-version":11}],10:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -324,7 +449,7 @@ function Individual(key, value) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 var Individual = require('./index.js');
@@ -348,7 +473,7 @@ function OneVersion(moduleName, version, defaultValue) {
     return Individual(key, defaultValue);
 }
 
-},{"./index.js":9}],11:[function(require,module,exports){
+},{"./index.js":10}],12:[function(require,module,exports){
 (function (global){
 var topLevel = typeof global !== 'undefined' ? global :
     typeof window !== 'undefined' ? window : {}
@@ -367,14 +492,14 @@ if (typeof document !== 'undefined') {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"min-document":37}],12:[function(require,module,exports){
+},{"min-document":38}],13:[function(require,module,exports){
 "use strict";
 
 module.exports = function isObject(x) {
 	return typeof x === "object" && x !== null;
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 var nativeIsArray = Array.isArray
 var toString = Object.prototype.toString
 
@@ -384,12 +509,12 @@ function isArray(obj) {
     return toString.call(obj) === "[object Array]"
 }
 
-},{}],14:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 var patch = require("./vdom/patch.js")
 
 module.exports = patch
 
-},{"./vdom/patch.js":19}],15:[function(require,module,exports){
+},{"./vdom/patch.js":20}],16:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook.js")
 
@@ -488,7 +613,7 @@ function getPrototype(value) {
     }
 }
 
-},{"../vnode/is-vhook.js":27,"is-object":12}],16:[function(require,module,exports){
+},{"../vnode/is-vhook.js":28,"is-object":13}],17:[function(require,module,exports){
 var document = require("global/document")
 
 var applyProperties = require("./apply-properties")
@@ -536,7 +661,7 @@ function createElement(vnode, opts) {
     return node
 }
 
-},{"../vnode/handle-thunk.js":25,"../vnode/is-vnode.js":28,"../vnode/is-vtext.js":29,"../vnode/is-widget.js":30,"./apply-properties":15,"global/document":11}],17:[function(require,module,exports){
+},{"../vnode/handle-thunk.js":26,"../vnode/is-vnode.js":29,"../vnode/is-vtext.js":30,"../vnode/is-widget.js":31,"./apply-properties":16,"global/document":12}],18:[function(require,module,exports){
 // Maps a virtual DOM tree onto a real DOM tree in an efficient manner.
 // We don't want to read all of the DOM nodes in the tree so we use
 // the in-order tree indexing to eliminate recursion down certain branches.
@@ -623,7 +748,7 @@ function ascending(a, b) {
     return a > b ? 1 : -1
 }
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 var applyProperties = require("./apply-properties")
 
 var isWidget = require("../vnode/is-widget.js")
@@ -777,7 +902,7 @@ function replaceRoot(oldRoot, newRoot) {
     return newRoot;
 }
 
-},{"../vnode/is-widget.js":30,"../vnode/vpatch.js":33,"./apply-properties":15,"./create-element":16,"./update-widget":20}],19:[function(require,module,exports){
+},{"../vnode/is-widget.js":31,"../vnode/vpatch.js":34,"./apply-properties":16,"./create-element":17,"./update-widget":21}],20:[function(require,module,exports){
 var document = require("global/document")
 var isArray = require("x-is-array")
 
@@ -855,7 +980,7 @@ function patchIndices(patches) {
     return indices
 }
 
-},{"./dom-index":17,"./patch-op":18,"global/document":11,"x-is-array":13}],20:[function(require,module,exports){
+},{"./dom-index":18,"./patch-op":19,"global/document":12,"x-is-array":14}],21:[function(require,module,exports){
 var isWidget = require("../vnode/is-widget.js")
 
 module.exports = updateWidget
@@ -872,7 +997,7 @@ function updateWidget(a, b) {
     return false
 }
 
-},{"../vnode/is-widget.js":30}],21:[function(require,module,exports){
+},{"../vnode/is-widget.js":31}],22:[function(require,module,exports){
 'use strict';
 
 var EvStore = require('ev-store');
@@ -901,7 +1026,7 @@ EvHook.prototype.unhook = function(node, propertyName) {
     es[propName] = undefined;
 };
 
-},{"ev-store":8}],22:[function(require,module,exports){
+},{"ev-store":9}],23:[function(require,module,exports){
 'use strict';
 
 module.exports = SoftSetHook;
@@ -920,7 +1045,7 @@ SoftSetHook.prototype.hook = function (node, propertyName) {
     }
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 var isArray = require('x-is-array');
@@ -1057,7 +1182,7 @@ function errorString(obj) {
     }
 }
 
-},{"../vnode/is-thunk":26,"../vnode/is-vhook":27,"../vnode/is-vnode":28,"../vnode/is-vtext":29,"../vnode/is-widget":30,"../vnode/vnode.js":32,"../vnode/vtext.js":34,"./hooks/ev-hook.js":21,"./hooks/soft-set-hook.js":22,"./parse-tag.js":24,"x-is-array":13}],24:[function(require,module,exports){
+},{"../vnode/is-thunk":27,"../vnode/is-vhook":28,"../vnode/is-vnode":29,"../vnode/is-vtext":30,"../vnode/is-widget":31,"../vnode/vnode.js":33,"../vnode/vtext.js":35,"./hooks/ev-hook.js":22,"./hooks/soft-set-hook.js":23,"./parse-tag.js":25,"x-is-array":14}],25:[function(require,module,exports){
 'use strict';
 
 var split = require('browser-split');
@@ -1113,7 +1238,7 @@ function parseTag(tag, props) {
     return props.namespace ? tagName : tagName.toUpperCase();
 }
 
-},{"browser-split":7}],25:[function(require,module,exports){
+},{"browser-split":8}],26:[function(require,module,exports){
 var isVNode = require("./is-vnode")
 var isVText = require("./is-vtext")
 var isWidget = require("./is-widget")
@@ -1155,14 +1280,14 @@ function renderThunk(thunk, previous) {
     return renderedThunk
 }
 
-},{"./is-thunk":26,"./is-vnode":28,"./is-vtext":29,"./is-widget":30}],26:[function(require,module,exports){
+},{"./is-thunk":27,"./is-vnode":29,"./is-vtext":30,"./is-widget":31}],27:[function(require,module,exports){
 module.exports = isThunk
 
 function isThunk(t) {
     return t && t.type === "Thunk"
 }
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = isHook
 
 function isHook(hook) {
@@ -1171,7 +1296,7 @@ function isHook(hook) {
        typeof hook.unhook === "function" && !hook.hasOwnProperty("unhook"))
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualNode
@@ -1180,7 +1305,7 @@ function isVirtualNode(x) {
     return x && x.type === "VirtualNode" && x.version === version
 }
 
-},{"./version":31}],29:[function(require,module,exports){
+},{"./version":32}],30:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = isVirtualText
@@ -1189,17 +1314,17 @@ function isVirtualText(x) {
     return x && x.type === "VirtualText" && x.version === version
 }
 
-},{"./version":31}],30:[function(require,module,exports){
+},{"./version":32}],31:[function(require,module,exports){
 module.exports = isWidget
 
 function isWidget(w) {
     return w && w.type === "Widget"
 }
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 module.exports = "2"
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 var version = require("./version")
 var isVNode = require("./is-vnode")
 var isWidget = require("./is-widget")
@@ -1273,7 +1398,7 @@ function VirtualNode(tagName, properties, children, key, namespace) {
 VirtualNode.prototype.version = version
 VirtualNode.prototype.type = "VirtualNode"
 
-},{"./is-thunk":26,"./is-vhook":27,"./is-vnode":28,"./is-widget":30,"./version":31}],33:[function(require,module,exports){
+},{"./is-thunk":27,"./is-vhook":28,"./is-vnode":29,"./is-widget":31,"./version":32}],34:[function(require,module,exports){
 var version = require("./version")
 
 VirtualPatch.NONE = 0
@@ -1297,7 +1422,7 @@ function VirtualPatch(type, vNode, patch) {
 VirtualPatch.prototype.version = version
 VirtualPatch.prototype.type = "VirtualPatch"
 
-},{"./version":31}],34:[function(require,module,exports){
+},{"./version":32}],35:[function(require,module,exports){
 var version = require("./version")
 
 module.exports = VirtualText
@@ -1309,7 +1434,7 @@ function VirtualText(text) {
 VirtualText.prototype.version = version
 VirtualText.prototype.type = "VirtualText"
 
-},{"./version":31}],35:[function(require,module,exports){
+},{"./version":32}],36:[function(require,module,exports){
 var isObject = require("is-object")
 var isHook = require("../vnode/is-vhook")
 
@@ -1369,7 +1494,7 @@ function getPrototype(value) {
   }
 }
 
-},{"../vnode/is-vhook":27,"is-object":12}],36:[function(require,module,exports){
+},{"../vnode/is-vhook":28,"is-object":13}],37:[function(require,module,exports){
 var isArray = require("x-is-array")
 
 var VPatch = require("../vnode/vpatch")
@@ -1798,9 +1923,51 @@ function appendPatch(apply, patch) {
     }
 }
 
-},{"../vnode/handle-thunk":25,"../vnode/is-thunk":26,"../vnode/is-vnode":28,"../vnode/is-vtext":29,"../vnode/is-widget":30,"../vnode/vpatch":33,"./diff-props":35,"x-is-array":13}],37:[function(require,module,exports){
+},{"../vnode/handle-thunk":26,"../vnode/is-thunk":27,"../vnode/is-vnode":29,"../vnode/is-vtext":30,"../vnode/is-widget":31,"../vnode/vpatch":34,"./diff-props":36,"x-is-array":14}],38:[function(require,module,exports){
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
+"use strict";
+
+
+var h = require("virtual-dom/h");
+
+module.exports = {
+    home: home,
+    about: about,
+    generic: generic,
+    contact: contact
+};
+
+// home
+function home () {
+    
+    return h("h1", "WORLD");
+}
+
+// me section
+function about () {
+
+    return h("h1", "This is the kind of work I do");
+}
+
+function contact () {
+    
+    return h("h1", "You can contact me in this way");
+}
+
+// work section
+function work () {
+
+    return h("h1", "I write small open source Javascript and Node modules");
+}
+
+// default
+function generic () {
+
+    return h("h1", "I didn't recognize that screen")
+}
+
+},{"virtual-dom/h":7}],40:[function(require,module,exports){
 "use strict";
 
 
@@ -1810,59 +1977,8 @@ var patch = require("virtual-dom/patch");
 var createElement = require("virtual-dom/create-element");
 var observ = require("observ");
 var observStruct = require("observ-struct");
-var commands = {
-
-    ls: function (args, state) {
-        var currentPosition = state.current();
-        var fs = state.fs();
-        var currentDirectory = currentPosition.reduce(function (a, b) {
-            
-           if (typeof a === "object" && a.hasOwnProperty(b)) {
-                return a[b]; 
-           } else {
-                return a;
-           }
-        }, state.fs()); 
-        var response = Object.keys(currentDirectory).join("\n");
-        var history = state.history();
-        history.push(response);
-        state.history.set(history);
-    },
-    cd: function (args, state) {
-        var target = args[1]; 
-        target += (target !== ".." && target[target.length-1] !== "/") ? "/" : "";
-        var fs = state.fs();
-        var currentPosition = state.current(); 
-        if (typeof fs["/"][target] === "object") {
-            currentPosition.push(target); 
-            state.current.set(currentPosition); 
-        } else if (target === "..") {
-            currentPosition.pop();
-            state.current.set(currentPosition);
-        }
-    },
-    clear: function (args, state) {
-        state.history.set([]);
-    },
-    mkdir: function (args, state) {
-    
-        var dirName = args[1];
-        //append forward slash for directories
-        dirName += (dirName[dirName.length-1] !== "/") ? "/" : "";
-        
-        var currentPosition = state.current();
-        var directory = state.fs();
-        var newDirectory = directory;
-        // access current folder
-        currentPosition.forEach(function (a) {
-        
-            newDirectory = newDirectory[a];
-        }, state.fs());
-        // create new
-        newDirectory[dirName] = {};
-        state.fs.set(directory);
-    }
-};
+var commands = require("./commands.js");
+var screens = require("./screens.js");
 
 function main () {
     
@@ -1871,19 +1987,21 @@ function main () {
     }
   
     var state = observStruct({
-        history: observ([]),
+        history: observ(["Welcome to filwishercom. Type help or commands for help!"]),
         current: observ(["/"]),
         fs: observStruct({
             "/": {
-                "documents/": {
-                    ".vimrc": 1,
-                    "server.js": 2,
-                    "package.json": 3
+                "me/": {
+                    "about.screen": 1,
+                    "contact.screen": 2
                 },
-                "projects/": {},
+                "work/": {
+                    "work.screen": 3
+                },
                 "contact/": {}
             } 
-        })
+        }),
+        screen: observ("home")
     });
   
     var vtree, ntree, initial = true;
@@ -1927,86 +2045,40 @@ function main () {
     }
 
     function view () {
-   
-       return h("div.terminal", [
-     
-            
-            state.history().map(function (command) {
-                return h("div.line", [
-              
-                    h("span", command)
-                ]);
-            }),
-            h("div.line", [
-                h("span", user()),
-                h("input.cursor", {
-                    autofocus: true,
-                    type: "text",
-                    placeholder: "_",
-                    onkeypress: function (ev) {
-                        if (ev.keyCode === 13) {
-                            evaluate();   
-                        } 
-                    }
-                })
+       
+        var renderCurrentScreen = screens[state.screen()];
+        if (!renderCurrentScreen) renderCurrentScreen = screens.generic;
+        return h("div.container", [
+            h("div.terminal-outer", [
+                h("div.terminal", [
+                    state.history().map(function (command) {
+                        return h("div.line", [
+                      
+                            h("span", command)
+                        ]);
+                    }),
+                    h("div.line", [
+                        h("span", user()),
+                        h("input.cursor", {
+                            autofocus: true,
+                            type: "text",
+                            placeholder: "_",
+                            onkeypress: function (ev) {
+                                if (ev.keyCode === 13) {
+                                    evaluate();   
+                                } 
+                            }
+                        })
+                    ])
+                ])
+            ]),
+            h("div.screen", [
+                renderCurrentScreen() 
             ])
-       ]); 
+        ]);
     }
 }
 
-
 main();
 
-
-
-
-
-
-
-
-
-
-
-
-/* 
-
-var input = document.querySelector("input");
-
-var args;
-var argv;
-
-input.addEventListener("keypress", function (v) {
-  
- if  (v.which === 13) {
-  
-  args = input.value;
-  argv = args.split(" ");
-  input.value = "";
-  if (methods.hasOwnProperty(argv[0])) {
-    methods[argv[0]]();
-  }
- document.querySelector("#cool").textContent = args;
-   
- }
-
-});
-
-
-var terminal = document.querySelector(".terminal");
-terminal.scrollTop = terminal.scrollHeight;
-
-var methods = {
-  
- ls: function (argv) {
-   alert("LSED");
- },
-  cd: function (argv) {
-    alert("argv[1]");
-  },
-  pwd: function (argv) {
-    alert("PWD");
-  }
-};
-*/
-
-},{"observ":3,"observ-struct":1,"virtual-dom/create-element":4,"virtual-dom/diff":5,"virtual-dom/h":6,"virtual-dom/patch":14}]},{},[38]);
+},{"./commands.js":1,"./screens.js":39,"observ":4,"observ-struct":2,"virtual-dom/create-element":5,"virtual-dom/diff":6,"virtual-dom/h":7,"virtual-dom/patch":15}]},{},[40]);

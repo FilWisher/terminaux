@@ -7,59 +7,8 @@ var patch = require("virtual-dom/patch");
 var createElement = require("virtual-dom/create-element");
 var observ = require("observ");
 var observStruct = require("observ-struct");
-var commands = {
-
-    ls: function (args, state) {
-        var currentPosition = state.current();
-        var fs = state.fs();
-        var currentDirectory = currentPosition.reduce(function (a, b) {
-            
-           if (typeof a === "object" && a.hasOwnProperty(b)) {
-                return a[b]; 
-           } else {
-                return a;
-           }
-        }, state.fs()); 
-        var response = Object.keys(currentDirectory).join("\n");
-        var history = state.history();
-        history.push(response);
-        state.history.set(history);
-    },
-    cd: function (args, state) {
-        var target = args[1]; 
-        target += (target !== ".." && target[target.length-1] !== "/") ? "/" : "";
-        var fs = state.fs();
-        var currentPosition = state.current(); 
-        if (typeof fs["/"][target] === "object") {
-            currentPosition.push(target); 
-            state.current.set(currentPosition); 
-        } else if (target === "..") {
-            currentPosition.pop();
-            state.current.set(currentPosition);
-        }
-    },
-    clear: function (args, state) {
-        state.history.set([]);
-    },
-    mkdir: function (args, state) {
-    
-        var dirName = args[1];
-        //append forward slash for directories
-        dirName += (dirName[dirName.length-1] !== "/") ? "/" : "";
-        
-        var currentPosition = state.current();
-        var directory = state.fs();
-        var newDirectory = directory;
-        // access current folder
-        currentPosition.forEach(function (a) {
-        
-            newDirectory = newDirectory[a];
-        }, state.fs());
-        // create new
-        newDirectory[dirName] = {};
-        state.fs.set(directory);
-    }
-};
+var commands = require("./commands.js");
+var screens = require("./screens.js");
 
 function main () {
     
@@ -68,19 +17,21 @@ function main () {
     }
   
     var state = observStruct({
-        history: observ([]),
+        history: observ(["Welcome to filwishercom. Type help or commands for help!"]),
         current: observ(["/"]),
         fs: observStruct({
             "/": {
-                "documents/": {
-                    ".vimrc": 1,
-                    "server.js": 2,
-                    "package.json": 3
+                "me/": {
+                    "about.screen": 1,
+                    "contact.screen": 2
                 },
-                "projects/": {},
+                "work/": {
+                    "work.screen": 3
+                },
                 "contact/": {}
             } 
-        })
+        }),
+        screen: observ("home")
     });
   
     var vtree, ntree, initial = true;
@@ -124,84 +75,38 @@ function main () {
     }
 
     function view () {
-   
-       return h("div.terminal", [
-     
-            
-            state.history().map(function (command) {
-                return h("div.line", [
-              
-                    h("span", command)
-                ]);
-            }),
-            h("div.line", [
-                h("span", user()),
-                h("input.cursor", {
-                    autofocus: true,
-                    type: "text",
-                    placeholder: "_",
-                    onkeypress: function (ev) {
-                        if (ev.keyCode === 13) {
-                            evaluate();   
-                        } 
-                    }
-                })
+       
+        var renderCurrentScreen = screens[state.screen()];
+        if (!renderCurrentScreen) renderCurrentScreen = screens.generic;
+        return h("div.container", [
+            h("div.terminal-outer", [
+                h("div.terminal", [
+                    state.history().map(function (command) {
+                        return h("div.line", [
+                      
+                            h("span", command)
+                        ]);
+                    }),
+                    h("div.line", [
+                        h("span", user()),
+                        h("input.cursor", {
+                            autofocus: true,
+                            type: "text",
+                            placeholder: "_",
+                            onkeypress: function (ev) {
+                                if (ev.keyCode === 13) {
+                                    evaluate();   
+                                } 
+                            }
+                        })
+                    ])
+                ])
+            ]),
+            h("div.screen", [
+                renderCurrentScreen() 
             ])
-       ]); 
+        ]);
     }
 }
 
-
 main();
-
-
-
-
-
-
-
-
-
-
-
-
-/* 
-
-var input = document.querySelector("input");
-
-var args;
-var argv;
-
-input.addEventListener("keypress", function (v) {
-  
- if  (v.which === 13) {
-  
-  args = input.value;
-  argv = args.split(" ");
-  input.value = "";
-  if (methods.hasOwnProperty(argv[0])) {
-    methods[argv[0]]();
-  }
- document.querySelector("#cool").textContent = args;
-   
- }
-
-});
-
-
-var terminal = document.querySelector(".terminal");
-terminal.scrollTop = terminal.scrollHeight;
-
-var methods = {
-  
- ls: function (argv) {
-   alert("LSED");
- },
-  cd: function (argv) {
-    alert("argv[1]");
-  },
-  pwd: function (argv) {
-    alert("PWD");
-  }
-};
-*/
