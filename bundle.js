@@ -1941,7 +1941,13 @@ module.exports = {
 // home
 function home () {
     
-    return h("h1", "WORLD");
+    return h("div", [
+         
+        h("h2", "FilWisher.com"),
+        h("p", "William Fisher is an online entity"),
+        h("br"),
+        h("p", "Type `help` or `commands` for help!")
+    ]);
 }
 
 // me section
@@ -1987,7 +1993,10 @@ function main () {
     }
   
     var state = observStruct({
-        history: observ(["Welcome to filwishercom. Type help or commands for help!"]),
+        history: observ([
+          "Welcome to filwishercom. Type help or commands for help!",
+          ""
+        ]),
         current: observ(["/"]),
         fs: observStruct({
             "/": {

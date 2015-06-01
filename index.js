@@ -17,7 +17,10 @@ function main () {
     }
   
     var state = observStruct({
-        history: observ(["Welcome to filwishercom. Type help or commands for help!"]),
+        history: observ([
+          "Welcome to filwishercom. Type help or commands for help!",
+          ""
+        ]),
         current: observ(["/"]),
         fs: observStruct({
             "/": {
