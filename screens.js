@@ -7,7 +7,8 @@ module.exports = {
     home: home,
     about: about,
     generic: generic,
-    contact: contact
+    contact: contact,
+    visitgrimsby: visitgrimsby
 };
 
 // home
@@ -37,6 +38,15 @@ function contact () {
 function work () {
 
     return h("h1", "I write small open source Javascript and Node modules");
+}
+
+function visitgrimsby () {
+
+    return h("iframe", {
+    
+        src: "http://www.visitgrimsby.co.uk/",
+        style: "height:500px;width:400px;"
+    });
 }
 
 // default
